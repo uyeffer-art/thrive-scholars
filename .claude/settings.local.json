@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/uyeff/Desktop/Projects/**)",
+      "Bash(npx create-next-app@latest thrive-scholars --typescript --tailwind --app --no-git --yes)"
+    ]
+  }
+}
