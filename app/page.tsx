@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { roleDashboardPath } from '@/lib/utils/auth'
 import type { UserRole } from '@/lib/types/database'
 
@@ -9,14 +10,14 @@ export default async function RootPage() {
 
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
+  const admin = createAdminClient()
+  const { data: profile } = await admin
     .from('profiles')
     .select('role')
     .eq('id', user.id)
-    .returns<{ role: UserRole }[]>()
     .single()
 
   if (!profile) redirect('/onboarding/scholar')
 
-  redirect(roleDashboardPath(profile.role))
+  redirect(roleDashboardPath((profile as { role: UserRole }).role))
 }

@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
 import type { UserRole } from '@/lib/types/database'
 
@@ -8,7 +9,10 @@ export async function requireAuth() {
 
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
+  // Use admin client to bypass RLS for profile lookup — safe because
+  // this only runs server-side and we've already verified the user via getUser()
+  const admin = createAdminClient()
+  const { data: profile } = await admin
     .from('profiles')
     .select('*')
     .eq('id', user.id)
@@ -37,7 +41,8 @@ export async function getSessionProfile() {
 
   if (!user) return null
 
-  const { data: profile } = await supabase
+  const admin = createAdminClient()
+  const { data: profile } = await admin
     .from('profiles')
     .select('*')
     .eq('id', user.id)

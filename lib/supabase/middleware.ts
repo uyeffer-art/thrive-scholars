@@ -45,44 +45,9 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  if (user && !isPublicPath) {
-    // Fetch role for route guard
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    const role = profile?.role
-
-    // Onboarding gate — new users without a profile record land here
-    if (!profile && !pathname.startsWith('/onboarding')) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/onboarding/scholar'
-      return NextResponse.redirect(url)
-    }
-
-    // Staff-only routes
-    if (pathname.startsWith('/staff') && role !== 'staff' && role !== 'admin') {
-      const url = request.nextUrl.clone()
-      url.pathname = '/unauthorized'
-      return NextResponse.redirect(url)
-    }
-
-    // Volunteer-only dashboard
-    if (pathname.startsWith('/volunteer') && role !== 'volunteer') {
-      const url = request.nextUrl.clone()
-      url.pathname = '/unauthorized'
-      return NextResponse.redirect(url)
-    }
-
-    // Scholar-only dashboard
-    if (pathname.startsWith('/scholar') && role !== 'scholar') {
-      const url = request.nextUrl.clone()
-      url.pathname = '/unauthorized'
-      return NextResponse.redirect(url)
-    }
-  }
+  // Role-based route guards are handled by requireRole() / requireStaff()
+  // in each layout/page using the server client (which has full session context).
+  // The middleware only handles the unauthenticated redirect above.
 
   return supabaseResponse
 }

@@ -38,15 +38,15 @@ export default async function StaffDashboardPage() {
       <div className="bg-white rounded-xl border border-gray-200 p-6">
         <h2 className="font-semibold text-gray-900 mb-4">Quick actions</h2>
         <div className="flex flex-wrap gap-3">
-          <a href="/staff/matches?status=pending_approval"
+          <a href="/matches?status=pending_approval"
             className="px-4 py-2 rounded-lg bg-amber-50 text-amber-700 text-sm font-medium hover:bg-amber-100 transition-colors">
             Review pending matches →
           </a>
-          <a href="/staff/volunteers"
+          <a href="/volunteers"
             className="px-4 py-2 rounded-lg bg-blue-50 text-blue-700 text-sm font-medium hover:bg-blue-100 transition-colors">
             Manage volunteers →
           </a>
-          <a href="/staff/programs"
+          <a href="/programs"
             className="px-4 py-2 rounded-lg bg-purple-50 text-purple-700 text-sm font-medium hover:bg-purple-100 transition-colors">
             Program settings →
           </a>

@@ -1,21 +1,21 @@
 import { requireStaff } from '@/lib/utils/auth'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import SignOutButton from '@/components/auth/SignOutButton'
 
 export default async function StaffLayout({ children }: { children: React.ReactNode }) {
-  await requireStaff()
+  const { user } = await requireStaff()
 
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  const { data: profile } = await supabase.from('profiles').select('first_name, role').eq('id', user!.id).returns<{ first_name: string; role: string }[]>().single()
+  const admin = createAdminClient()
+  const { data: profile } = await admin.from('profiles').select('first_name, role').eq('id', user.id).single()
 
   const navLinks = [
-    { href: '/staff/dashboard', label: 'Dashboard' },
-    { href: '/staff/scholars', label: 'Scholars' },
-    { href: '/staff/volunteers', label: 'Volunteers' },
-    { href: '/staff/programs', label: 'Programs' },
-    { href: '/staff/matches', label: 'Matches' },
+    { href: '/dashboard', label: 'Dashboard' },
+    { href: '/scholars', label: 'Scholars' },
+    { href: '/volunteers', label: 'Volunteers' },
+    { href: '/programs', label: 'Programs' },
+    { href: '/matches', label: 'Matches' },
   ]
 
   return (

@@ -5,6 +5,6 @@ export function roleDashboardPath(role: UserRole): string {
     case 'scholar': return '/scholar/matches'
     case 'volunteer': return '/volunteer/matches'
     case 'staff':
-    case 'admin': return '/staff/dashboard'
+    case 'admin': return '/dashboard'
   }
 }
