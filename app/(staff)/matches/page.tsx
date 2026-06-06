@@ -1,52 +1,95 @@
 import { requireStaff } from '@/lib/utils/auth'
+import { createAdminClient } from '@/lib/supabase/admin'
 import Link from 'next/link'
+
+const STATUS_TABS = [
+  { value: 'approved', label: 'Approved' },
+  { value: 'active', label: 'Active' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'declined', label: 'Declined' },
+]
 
 export default async function StaffMatchesPage({
   searchParams,
 }: {
   searchParams: Promise<{ status?: string }>
 }) {
-  const { supabase } = await requireStaff()
+  await requireStaff()
   const params = await searchParams
-  const statusFilter = params.status ?? 'pending_approval'
+  const statusFilter = params.status ?? 'approved'
 
-  const { data: matches } = await supabase
-    .from('v_active_matches')
-    .select('*')
+  const admin = createAdminClient()
+
+  const { data: matches } = await admin
+    .from('matches')
+    .select(`
+      id, status, ai_score, manually_selected, pm_notes,
+      match_email_sent_at, timeout_at, created_at,
+      programs (name, program_type),
+      scholars (
+        current_stage, career_interests,
+        profiles (first_name, last_name, email)
+      ),
+      volunteers (
+        job_title, employer, is_star_volunteer, is_corporate_partner, corporate_partner_name,
+        profiles (first_name, last_name)
+      )
+    `)
     .eq('status', statusFilter)
     .order('created_at', { ascending: false })
-    .limit(50)
+    .limit(100)
 
-  const statusTabs = [
-    { value: 'suggested', label: 'Suggested' },
-    { value: 'pending_approval', label: 'Pending review' },
-    { value: 'approved', label: 'Approved' },
-    { value: 'active', label: 'Active' },
-  ]
+  // Get counts for each tab
+  const { data: counts } = await admin
+    .from('matches')
+    .select('status')
+
+  const countMap: Record<string, number> = {}
+  ;(counts ?? []).forEach((m: any) => {
+    countMap[m.status] = (countMap[m.status] ?? 0) + 1
+  })
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Matches</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Matches</h1>
+        <span className="text-sm text-gray-500">
+          {(matches ?? []).length} shown
+        </span>
+      </div>
 
-      <div className="flex gap-2 mb-6">
-        {statusTabs.map(t => (
+      {/* Status tabs */}
+      <div className="flex gap-2 mb-6 flex-wrap">
+        {STATUS_TABS.map(t => (
           <Link
             key={t.value}
-            href={`/staff/matches?status=${t.value}`}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            href={`/matches?status=${t.value}`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
               statusFilter === t.value
                 ? 'bg-blue-600 text-white'
                 : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
             }`}
           >
             {t.label}
+            {countMap[t.value] ? (
+              <span className={`text-xs px-1.5 py-0.5 rounded-full ${
+                statusFilter === t.value ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600'
+              }`}>
+                {countMap[t.value]}
+              </span>
+            ) : null}
           </Link>
         ))}
       </div>
 
       {(!matches || matches.length === 0) ? (
         <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-          <p className="text-gray-500">No matches with status "{statusFilter}".</p>
+          <p className="text-gray-500">No {statusFilter} matches.</p>
+          {statusFilter === 'approved' && (
+            <p className="text-sm text-gray-400 mt-2">
+              Run matching from a <Link href="/scholars" className="text-blue-600 hover:underline">scholar's page</Link> to generate matches.
+            </p>
+          )}
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -58,42 +101,64 @@ export default async function StaffMatchesPage({
                 <th className="text-left px-4 py-3 text-gray-600 font-medium">Program</th>
                 <th className="text-left px-4 py-3 text-gray-600 font-medium">AI Score</th>
                 <th className="text-left px-4 py-3 text-gray-600 font-medium">Timeout</th>
+                <th className="text-left px-4 py-3 text-gray-600 font-medium">Email sent</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {matches.map((m: any) => (
-                <tr key={m.match_id} className="hover:bg-gray-50 transition-colors">
+              {(matches as any[]).map(m => (
+                <tr key={m.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 py-3">
-                    <p className="font-medium text-gray-900">{m.scholar_name}</p>
-                    <p className="text-gray-500 text-xs">{m.current_stage}</p>
+                    <p className="font-medium text-gray-900">
+                      {m.scholars?.profiles?.first_name} {m.scholars?.profiles?.last_name}
+                    </p>
+                    <p className="text-gray-500 text-xs capitalize">
+                      {m.scholars?.current_stage?.replace(/-/g, ' ')}
+                    </p>
                   </td>
                   <td className="px-4 py-3">
                     <p className="font-medium text-gray-900">
-                      {m.volunteer_name}
-                      {m.is_star_volunteer && <span className="ml-1 text-yellow-500">⭐</span>}
+                      {m.volunteers?.profiles?.first_name} {m.volunteers?.profiles?.last_name}
+                      {m.volunteers?.is_star_volunteer && <span className="ml-1">⭐</span>}
                     </p>
-                    <p className="text-gray-500 text-xs">{m.job_title} · {m.employer}</p>
+                    <p className="text-gray-500 text-xs">
+                      {m.volunteers?.job_title} · {m.volunteers?.employer}
+                    </p>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{m.program_name}</td>
                   <td className="px-4 py-3">
-                    {m.ai_score ? (
-                      <span className={`font-medium ${m.ai_score >= 0.7 ? 'text-green-600' : m.ai_score >= 0.5 ? 'text-amber-600' : 'text-red-600'}`}>
-                        {(m.ai_score * 100).toFixed(0)}%
-                      </span>
-                    ) : (
-                      <span className="text-gray-400">—</span>
+                    <p className="text-gray-700">{m.programs?.name}</p>
+                    {m.manually_selected && (
+                      <span className="text-xs bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded">Manual</span>
                     )}
                   </td>
+                  <td className="px-4 py-3">
+                    {m.ai_score ? (
+                      <span className={`font-medium ${
+                        m.ai_score >= 0.7 ? 'text-green-600' :
+                        m.ai_score >= 0.5 ? 'text-amber-600' : 'text-red-600'
+                      }`}>
+                        {(m.ai_score * 100).toFixed(0)}%
+                      </span>
+                    ) : <span className="text-gray-400">—</span>}
+                  </td>
                   <td className="px-4 py-3 text-gray-500 text-xs">
-                    {m.timeout_at ? new Date(m.timeout_at).toLocaleDateString() : '—'}
+                    {m.timeout_at
+                      ? <TimeoutIndicator timeoutAt={m.timeout_at} />
+                      : '—'}
+                  </td>
+                  <td className="px-4 py-3 text-xs">
+                    {m.match_email_sent_at ? (
+                      <span className="text-green-600">✓ Sent</span>
+                    ) : (
+                      <span className="text-gray-400">Pending</span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <Link
-                      href={`/staff/matches/${m.match_id}`}
-                      className="text-blue-600 hover:underline text-xs font-medium"
+                      href={`/matches/${m.id}`}
+                      className="text-blue-600 hover:underline text-xs font-medium whitespace-nowrap"
                     >
-                      Review →
+                      View →
                     </Link>
                   </td>
                 </tr>
@@ -104,4 +169,13 @@ export default async function StaffMatchesPage({
       )}
     </div>
   )
+}
+
+function TimeoutIndicator({ timeoutAt }: { timeoutAt: string }) {
+  const daysLeft = Math.ceil(
+    (new Date(timeoutAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+  )
+  if (daysLeft < 0) return <span className="text-red-500">Expired</span>
+  if (daysLeft <= 2) return <span className="text-amber-600">{daysLeft}d left</span>
+  return <span className="text-gray-500">{daysLeft}d left</span>
 }

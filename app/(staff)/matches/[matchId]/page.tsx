@@ -1,5 +1,7 @@
 import { requireStaff } from '@/lib/utils/auth'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
 import ApproveMatchForm from '@/components/matches/ApproveMatchForm'
 
 export default async function MatchDetailPage({
@@ -7,28 +9,27 @@ export default async function MatchDetailPage({
 }: {
   params: Promise<{ matchId: string }>
 }) {
-  const { supabase } = await requireStaff()
+  const { user } = await requireStaff()
   const { matchId } = await params
+  const admin = createAdminClient()
 
-  const { data: match } = await supabase
+  const { data: match } = await admin
     .from('matches')
     .select(`
       *,
       programs (name, program_type, matching_weights),
       scholars (
-        cohort_year, college, current_stage, career_interests, race_ethnicity, gender, first_gen, geographic_preference,
+        id, cohort_year, college, current_stage, career_interests, race_ethnicity, gender, first_gen, geographic_preference,
         profiles (first_name, last_name, email)
       ),
       volunteers (
-        employer, job_title, industry, is_corporate_partner, corporate_partner_name,
+        id, employer, job_title, industry, is_corporate_partner, corporate_partner_name,
         is_star_volunteer, total_matches_completed, undergrad_institution, cal_booking_url,
         race_ethnicity, gender, first_gen, geographic_preference,
         profiles (first_name, last_name, email)
       )
     `)
     .eq('id', matchId)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .returns<any[]>()
     .single()
 
   if (!match) notFound()
@@ -39,8 +40,13 @@ export default async function MatchDetailPage({
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-2xl font-bold text-gray-900 mb-2">Match Review</h1>
-      <p className="text-gray-500 text-sm mb-8">{program.name}</p>
+      <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
+        <Link href="/matches" className="hover:text-gray-700">Matches</Link>
+        <span>→</span>
+        <span>{scholar.profiles.first_name} {scholar.profiles.last_name} × {volunteer.profiles.first_name} {volunteer.profiles.last_name}</span>
+      </div>
+      <h1 className="text-2xl font-bold text-gray-900 mb-2">Match Detail</h1>
+      <p className="text-gray-500 text-sm mb-6">{program.name}</p>
 
       <div className="grid grid-cols-2 gap-4 mb-6">
         <ProfileCard
