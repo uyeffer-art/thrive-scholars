@@ -339,12 +339,20 @@ serve(async (req: Request) => {
 
     let scholarEmbedding: number[];
 
-    if (scholar.embedding && scholar.embedding_updated_at) {
+    // Supabase returns vector columns as strings — parse if needed
+    const rawEmbedding = scholar.embedding;
+    const parsedEmbedding: number[] | null = rawEmbedding
+      ? (Array.isArray(rawEmbedding)
+          ? rawEmbedding
+          : JSON.parse(rawEmbedding as string))
+      : null;
+
+    if (parsedEmbedding && scholar.embedding_updated_at) {
       // Reuse cached embedding if profile hasn't changed since last embed
       const embeddingAge = Date.now() - new Date(scholar.embedding_updated_at).getTime();
       const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
       if (embeddingAge < sevenDaysMs) {
-        scholarEmbedding = scholar.embedding;
+        scholarEmbedding = parsedEmbedding;
       } else {
         scholarEmbedding = await generateEmbedding(openai, buildScholarEmbeddingText(scholar));
         await db.from("scholars").update({
