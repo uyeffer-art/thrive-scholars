@@ -122,6 +122,24 @@ export default function RunMatchingForm({
       setError(err.message)
     } else {
       setApproved(prev => new Set([...prev, candidate.volunteer_id]))
+
+      // Get the match id and fire approval emails
+      const supabase2 = createClient()
+      const { data: match } = await supabase2
+        .from('matches')
+        .select('id')
+        .eq('scholar_id', scholarId)
+        .eq('volunteer_id', candidate.volunteer_id)
+        .eq('program_id', selectedProgram)
+        .single()
+
+      if (match) {
+        fetch('/api/email/match', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ match_id: (match as any).id, event: 'approved' }),
+        }).catch(console.error)
+      }
     }
 
     setApprovingId(null)

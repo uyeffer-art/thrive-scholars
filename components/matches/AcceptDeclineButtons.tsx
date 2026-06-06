@@ -57,6 +57,14 @@ export default function AcceptDeclineButtons({
     if (err) {
       setError(err.message)
     } else {
+      // If match just became active, fire active emails
+      if (updatePayload.status === 'active') {
+        fetch('/api/email/match', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ match_id: matchId, event: 'active' }),
+        }).catch(console.error)
+      }
       router.refresh()
     }
 

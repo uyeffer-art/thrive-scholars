@@ -36,7 +36,14 @@ export default function ApproveMatchForm({ match }: { match: Match }) {
       return
     }
 
-    router.push('/staff/matches?status=approved')
+    // Fire match approved emails (non-blocking)
+    fetch('/api/email/match', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ match_id: match.id, event: 'approved' }),
+    }).catch(console.error)
+
+    router.push('/matches?status=approved')
     router.refresh()
   }
 
