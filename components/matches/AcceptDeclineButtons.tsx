@@ -57,12 +57,17 @@ export default function AcceptDeclineButtons({
     if (err) {
       setError(err.message)
     } else {
-      // If match just became active, fire active emails
+      // If match just became active, fire active emails and Make.com trigger
       if (updatePayload.status === 'active') {
         fetch('/api/email/match', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ match_id: matchId, event: 'active' }),
+        }).catch(console.error)
+        fetch('/api/automation/trigger', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ match_id: matchId, event_type: 'match_active' }),
         }).catch(console.error)
       }
       router.refresh()

@@ -134,10 +134,18 @@ export default function RunMatchingForm({
         .single()
 
       if (match) {
+        const matchId = (match as any).id
+        // Fire email notification
         fetch('/api/email/match', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ match_id: (match as any).id, event: 'approved' }),
+          body: JSON.stringify({ match_id: matchId, event: 'approved' }),
+        }).catch(console.error)
+        // Trigger Make.com scenario
+        fetch('/api/automation/trigger', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ match_id: matchId, event_type: 'match_approved' }),
         }).catch(console.error)
       }
     }
