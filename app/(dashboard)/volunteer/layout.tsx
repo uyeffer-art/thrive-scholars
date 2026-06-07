@@ -14,6 +14,7 @@ export default async function VolunteerLayout({ children }: { children: React.Re
     { href: '/volunteer/matches', label: 'My Matches' },
     { href: '/volunteer/interactions', label: 'Sessions' },
     { href: '/volunteer/training', label: 'Training' },
+    { href: '/volunteer/profile', label: 'Profile' },
   ]
 
   return (
