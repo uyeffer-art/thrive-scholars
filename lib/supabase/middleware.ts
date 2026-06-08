@@ -35,6 +35,9 @@ export async function updateSession(request: NextRequest) {
     '/login',
     '/signup',
     '/auth/callback',
+    '/api/webhooks',
+    '/api/automation',
+    '/api/email',
   ]
 
   const isPublicPath = publicPaths.some(p => pathname.startsWith(p))

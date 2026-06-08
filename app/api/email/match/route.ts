@@ -11,10 +11,7 @@ import {
 // POST /api/email/match
 // Body: { match_id: string, event: 'approved' | 'active' }
 export async function POST(request: Request) {
-  const body = await request.json()
-  const { match_id, event } = body
-  console.log('EMAIL API called:', { match_id, event })
-  console.log('RESEND_API_KEY set:', !!process.env.RESEND_API_KEY, process.env.RESEND_API_KEY?.slice(0, 8))
+  const { match_id, event } = await request.json()
 
   if (!match_id || !event) {
     return NextResponse.json({ error: 'match_id and event required' }, { status: 400 })
@@ -92,8 +89,6 @@ export async function POST(request: Request) {
           html: volunteerTemplate.html,
         }),
       ])
-      console.log('Scholar email result:', JSON.stringify(scholarResult))
-      console.log('Volunteer email result:', JSON.stringify(volunteerResult))
 
       // Mark email sent
       await admin

@@ -7,7 +7,9 @@ export async function POST(request: Request) {
   const rawBody = await request.text()
   const signature = request.headers.get('x-cal-signature-256')
 
-  if (!verifySignature(rawBody, signature)) {
+  // Allow Cal.com ping test (sends 'no-secret-provided') and real signed requests
+  const isPingTest = signature === 'no-secret-provided'
+  if (!isPingTest && !verifySignature(rawBody, signature)) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
   }
 
@@ -74,5 +76,6 @@ function verifySignature(body: string, signature: string | null): boolean {
   const secret = process.env.CAL_COM_WEBHOOK_SECRET
   if (!secret) return false
   const expected = createHmac('sha256', secret).update(body).digest('hex')
-  return `sha256=${expected}` === signature
+  // Cal.com sends signature without 'sha256=' prefix
+  return expected === signature || `sha256=${expected}` === signature
 }
