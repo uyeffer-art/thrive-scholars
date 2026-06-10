@@ -16,16 +16,25 @@ export default function VolunteerActionsPanel({
   currentStatus,
   isStar,
   starNotes: initialStarNotes,
+  isCorporatePartner: initialIsCorporate,
+  corporatePartnerName: initialPartnerName,
+  corporatePartnerPriority: initialPriority,
 }: {
   volunteerId: string
   currentStatus: string
   isStar: boolean
   starNotes: string | null
+  isCorporatePartner: boolean
+  corporatePartnerName: string | null
+  corporatePartnerPriority: number
 }) {
   const router = useRouter()
   const [status, setStatus] = useState(currentStatus)
   const [isStarVol, setIsStarVol] = useState(isStar)
   const [starNotes, setStarNotes] = useState(initialStarNotes ?? '')
+  const [isCorporate, setIsCorporate] = useState(initialIsCorporate)
+  const [partnerName, setPartnerName] = useState(initialPartnerName ?? '')
+  const [partnerPriority, setPartnerPriority] = useState(initialPriority ?? 0)
   const [saving, setSaving] = useState(false)
   const [nudging, setNudging] = useState(false)
   const [success, setSuccess] = useState<string | null>(null)
@@ -43,6 +52,9 @@ export default function VolunteerActionsPanel({
         status,
         is_star_volunteer: isStarVol,
         star_notes: isStarVol ? (starNotes || null) : null,
+        is_corporate_partner: isCorporate,
+        corporate_partner_name: isCorporate ? (partnerName || null) : null,
+        corporate_partner_priority: isCorporate ? partnerPriority : 0,
       })
       .eq('id', volunteerId)
 
@@ -90,6 +102,27 @@ export default function VolunteerActionsPanel({
             <option key={s.value} value={s.value}>{s.label}</option>
           ))}
         </select>
+      </div>
+
+      {/* Corporate partner */}
+      <div className="space-y-2">
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input type="checkbox" checked={isCorporate} onChange={e => setIsCorporate(e.target.checked)}
+            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+          <span className="text-sm text-gray-700">Corporate partner volunteer</span>
+        </label>
+        {isCorporate && (
+          <div className="space-y-2 pl-7">
+            <input type="text" value={partnerName} onChange={e => setPartnerName(e.target.value)}
+              placeholder="Company name (e.g. Deloitte)"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">Matching priority (higher = preferred)</label>
+              <input type="number" min={0} max={10} value={partnerPriority} onChange={e => setPartnerPriority(Number(e.target.value))}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Star volunteer */}

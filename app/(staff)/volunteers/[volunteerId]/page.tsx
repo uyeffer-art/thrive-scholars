@@ -164,6 +164,9 @@ export default async function VolunteerDetailPage({
             currentStatus={v.status}
             isStar={v.is_star_volunteer ?? false}
             starNotes={v.star_notes}
+            isCorporatePartner={v.is_corporate_partner ?? false}
+            corporatePartnerName={v.corporate_partner_name}
+            corporatePartnerPriority={v.corporate_partner_priority ?? 0}
           />
         </div>
       </div>

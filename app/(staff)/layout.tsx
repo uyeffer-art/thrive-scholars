@@ -18,6 +18,7 @@ export default async function StaffLayout({ children }: { children: React.ReactN
     { href: '/matches', label: 'Matches' },
     { href: '/interactions', label: 'Interactions' },
     { href: '/training', label: 'Training' },
+    { href: '/salesforce', label: 'Salesforce' },
     { href: '/automation-log', label: 'Log' },
   ]
 
