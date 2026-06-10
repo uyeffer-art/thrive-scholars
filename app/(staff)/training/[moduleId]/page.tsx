@@ -4,14 +4,15 @@ import { notFound } from 'next/navigation'
 import EditTrainingModuleForm from '@/components/training/EditTrainingModuleForm'
 import Link from 'next/link'
 
-export default async function EditTrainingModulePage({ params }: { params: { moduleId: string } }) {
+export default async function EditTrainingModulePage({ params }: { params: Promise<{ moduleId: string }> }) {
   await requireStaff()
+  const { moduleId } = await params
   const admin = createAdminClient()
 
   const { data: module } = await admin
     .from('training_modules')
     .select('*')
-    .eq('id', params.moduleId)
+    .eq('id', moduleId)
     .single()
 
   if (!module) notFound()
@@ -20,7 +21,7 @@ export default async function EditTrainingModulePage({ params }: { params: { mod
   const { data: completions } = await admin
     .from('training_completions')
     .select('status')
-    .eq('module_id', params.moduleId)
+    .eq('module_id', moduleId)
 
   const total = completions?.length ?? 0
   const completed = completions?.filter((c: any) => c.status === 'completed').length ?? 0
