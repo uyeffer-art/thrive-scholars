@@ -2,7 +2,13 @@
   "permissions": {
     "allow": [
       "Read(//c/Users/uyeff/Desktop/Projects/**)",
-      "Bash(npx create-next-app@latest thrive-scholars --typescript --tailwind --app --no-git --yes)"
+      "Bash(npx create-next-app@latest thrive-scholars --typescript --tailwind --app --no-git --yes)",
+      "Bash(npm install *)",
+      "Bash(mkdir -p \\\\ *)",
+      "Bash(npm run *)",
+      "mcp__Claude_in_Chrome__tabs_create_mcp",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }

@@ -14,6 +14,7 @@ export default async function ScholarLayout({ children }: { children: React.Reac
     { href: '/scholar/matches', label: 'My Matches' },
     { href: '/scholar/interactions', label: 'Sessions' },
     { href: '/scholar/training', label: 'Training' },
+    { href: '/scholar/profile', label: 'Profile' },
   ]
 
   return (
