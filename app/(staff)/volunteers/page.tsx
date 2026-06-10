@@ -43,6 +43,14 @@ export default async function StaffVolunteersPage({
     `)
     .order('created_at', { ascending: false })
 
+  // Inactive volunteers: active status but no activity in 60+ days
+  const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString()
+  const inactiveAlert = (volunteers ?? []).filter((v: any) =>
+    v.status === 'active' &&
+    v.last_active_at &&
+    v.last_active_at < sixtyDaysAgo
+  )
+
   const filtered = (volunteers ?? []).filter((v: any) => {
     const name = `${v.profiles?.first_name} ${v.profiles?.last_name}`.toLowerCase()
     const matchesQuery = !query ||
@@ -63,6 +71,28 @@ export default async function StaffVolunteersPage({
         <h1 className="text-2xl font-bold text-gray-900">Volunteers</h1>
         <span className="text-sm text-gray-500">{filtered.length} volunteers</span>
       </div>
+
+      {/* Inactivity alert */}
+      {inactiveAlert.length > 0 && (
+        <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <p className="text-sm font-medium text-amber-800 mb-2">
+            ⚠️ {inactiveAlert.length} active volunteer{inactiveAlert.length > 1 ? 's' : ''} haven't engaged in 60+ days
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {inactiveAlert.map((v: any) => (
+              <Link key={v.id} href={`/volunteers/${v.id}`}
+                className="text-xs bg-white border border-amber-200 text-amber-800 px-3 py-1 rounded-full hover:bg-amber-100 transition-colors">
+                {v.profiles?.first_name} {v.profiles?.last_name}
+                {v.last_active_at && (
+                  <span className="text-amber-500 ml-1">
+                    · {Math.floor((Date.now() - new Date(v.last_active_at).getTime()) / (1000 * 60 * 60 * 24))}d ago
+                  </span>
+                )}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex gap-3 mb-6 flex-wrap">

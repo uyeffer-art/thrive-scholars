@@ -2,6 +2,7 @@ import { requireStaff } from '@/lib/utils/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import VolunteerActionsPanel from '@/components/volunteer/VolunteerActionsPanel'
 
 const PROGRAM_TYPE_LABELS: Record<string, string> = {
   mentorship_year: 'Mentorship Year',
@@ -157,6 +158,13 @@ export default async function VolunteerDetailPage({
             <h2 className="font-semibold text-gray-900 mb-3">Embedding</h2>
             <EmbeddingStatus updatedAt={v.embedding_updated_at} />
           </div>
+
+          <VolunteerActionsPanel
+            volunteerId={v.id}
+            currentStatus={v.status}
+            isStar={v.is_star_volunteer ?? false}
+            starNotes={v.star_notes}
+          />
         </div>
       </div>
 
