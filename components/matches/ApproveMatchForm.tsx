@@ -8,8 +8,9 @@ import type { Match } from '@/lib/types/database'
 export default function ApproveMatchForm({ match }: { match: Match }) {
   const router = useRouter()
   const [pmNotes, setPmNotes] = useState(match.pm_notes ?? '')
-  const [loading, setLoading] = useState<'approve' | 'decline' | null>(null)
+  const [loading, setLoading] = useState<'approve' | 'decline' | 'cancel' | 'email' | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [emailSent, setEmailSent] = useState(false)
 
   async function handleApprove() {
     setLoading('approve')
@@ -67,7 +68,48 @@ export default function ApproveMatchForm({ match }: { match: Match }) {
     router.refresh()
   }
 
+  async function handleCancel() {
+    if (!confirm('Cancel this match? This cannot be undone.')) return
+    setLoading('cancel')
+    setError(null)
+
+    const supabase = createClient()
+    const { error: err } = await supabase
+      .from('matches')
+      .update({ status: 'cancelled', pm_notes: pmNotes })
+      .eq('id', match.id)
+
+    if (err) {
+      setError(err.message)
+      setLoading(null)
+      return
+    }
+
+    router.refresh()
+    setLoading(null)
+  }
+
+  async function handleResendEmail() {
+    setLoading('email')
+    setEmailSent(false)
+    setError(null)
+
+    const res = await fetch('/api/email/match', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ match_id: match.id, event: 'approved' }),
+    })
+
+    if (!res.ok) {
+      setError('Failed to send email. Check automation log.')
+    } else {
+      setEmailSent(true)
+    }
+    setLoading(null)
+  }
+
   const isReviewable = ['suggested', 'pending_approval'].includes(match.status)
+  const isActive = ['approved', 'active'].includes(match.status)
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-6">
@@ -76,6 +118,11 @@ export default function ApproveMatchForm({ match }: { match: Match }) {
       {error && (
         <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700 mb-4">
           {error}
+        </div>
+      )}
+      {emailSent && (
+        <div className="rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700 mb-4">
+          Match email sent successfully.
         </div>
       )}
 
@@ -87,13 +134,12 @@ export default function ApproveMatchForm({ match }: { match: Match }) {
           rows={3}
           value={pmNotes}
           onChange={e => setPmNotes(e.target.value)}
-          disabled={!isReviewable}
           placeholder="Why this match, any caveats, manual override rationale…"
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-400"
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
-      {isReviewable ? (
+      {isReviewable && (
         <div className="flex gap-3">
           <button
             onClick={handleDecline}
@@ -110,9 +156,30 @@ export default function ApproveMatchForm({ match }: { match: Match }) {
             {loading === 'approve' ? 'Approving…' : 'Approve match'}
           </button>
         </div>
-      ) : (
-        <div className="text-sm text-gray-500 capitalize">
-          Status: <span className="font-medium text-gray-700">{match.status}</span>
+      )}
+
+      {isActive && (
+        <div className="flex gap-3">
+          <button
+            onClick={handleResendEmail}
+            disabled={loading !== null}
+            className="flex-1 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2.5 rounded-lg text-sm transition-colors disabled:opacity-50"
+          >
+            {loading === 'email' ? 'Sending…' : 'Resend match email'}
+          </button>
+          <button
+            onClick={handleCancel}
+            disabled={loading !== null}
+            className="flex-1 bg-red-50 border border-red-200 hover:bg-red-100 text-red-700 font-medium py-2.5 rounded-lg text-sm transition-colors disabled:opacity-50"
+          >
+            {loading === 'cancel' ? 'Cancelling…' : 'Cancel match'}
+          </button>
+        </div>
+      )}
+
+      {!isReviewable && !isActive && (
+        <div className="text-sm text-gray-500">
+          Status: <span className="font-medium text-gray-700 capitalize">{match.status}</span>
         </div>
       )}
     </div>
