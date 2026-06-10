@@ -65,6 +65,7 @@ export default function SignUpPage() {
           <p className="mt-2 text-gray-600">Create your account</p>
         </div>
 
+        <div style={{color: 'red', fontSize: '20px', zIndex: 9999}}>KEY IS: {process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.substring(0, 15)}</div>
         <form onSubmit={handleSubmit} className="bg-white shadow-sm rounded-xl p-8 space-y-5 border border-gray-200">
           {error && (
             <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
