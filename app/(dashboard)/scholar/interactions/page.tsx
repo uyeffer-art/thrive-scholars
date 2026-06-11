@@ -1,6 +1,8 @@
 import { requireRole } from '@/lib/utils/auth'
+import { createAdminClient } from '@/lib/supabase/admin'
 import FeedbackForm from '@/components/interactions/FeedbackForm'
 import MarkInteractionForm from '@/components/interactions/MarkInteractionForm'
+import PrepCard from '@/components/interactions/PrepCard'
 
 const STATUS_STYLES: Record<string, string> = {
   scheduled: 'bg-blue-50 text-blue-700',
@@ -24,6 +26,28 @@ export default async function ScholarInteractionsPage() {
     .select('*, matches(programs(name)), volunteers(profiles(first_name, last_name))')
     .eq('scholar_id', scholar?.id ?? '')
     .order('scheduled_at', { ascending: false })
+
+  // Fetch prep content for upcoming scheduled interactions
+  const admin = createAdminClient()
+  const upcomingProgramTypes = [...new Set(
+    (interactions ?? [])
+      .filter((i: any) => i.status === 'scheduled' && i.scheduled_at >= now)
+      .map((i: any) => i.program_type)
+  )]
+
+  const { data: prepTemplates } = upcomingProgramTypes.length > 0
+    ? await admin
+        .from('reminder_templates')
+        .select('program_type, prep_content, audience')
+        .eq('is_active', true)
+        .in('audience', ['scholar', 'both'])
+        .in('program_type', upcomingProgramTypes)
+    : { data: [] }
+
+  const prepByType: Record<string, string> = {}
+  ;(prepTemplates ?? []).forEach((t: any) => {
+    if (t.program_type && t.prep_content) prepByType[t.program_type] = t.prep_content
+  })
 
   const now = new Date().toISOString()
   const unconfirmed = (interactions ?? []).filter(
@@ -72,6 +96,15 @@ export default async function ScholarInteractionsPage() {
                     {needsConfirmation ? 'Needs confirmation' : i.status}
                   </span>
                 </div>
+
+                {/* Prep card for upcoming sessions */}
+                {i.status === 'scheduled' && !isPast && prepByType[i.program_type] && (
+                  <PrepCard
+                    prepContent={prepByType[i.program_type]}
+                    volunteerName={i.volunteers?.profiles?.first_name ?? ''}
+                    sessionType={i.program_type}
+                  />
+                )}
 
                 {needsConfirmation && (
                   <div className="mt-3 pt-3 border-t border-amber-100">

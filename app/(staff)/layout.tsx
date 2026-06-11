@@ -13,6 +13,7 @@ const navLinks = [
   { href: '/interactions',   label: 'Interactions' },
   { href: '/training',       label: 'Training' },
   { href: '/salesforce',     label: 'Salesforce' },
+  { href: '/reminders',      label: 'Reminders' },
   { href: '/automation-log', label: 'Log' },
 ]
 
