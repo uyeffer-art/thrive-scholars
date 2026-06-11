@@ -25,41 +25,23 @@ export default async function VolunteerLayout({ children }: { children: React.Re
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
-      <nav
-        className="sticky top-0 z-30 border-b"
-        style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
-      >
+      <nav className="sticky top-0 z-30 border-b" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
         <div className="max-w-5xl mx-auto px-6 flex items-center justify-between h-16">
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-6">
             <Link href="/volunteer/matches" className="flex-shrink-0">
               <ThriveLogo size="md" />
             </Link>
             <div className="flex items-center gap-1">
               {navLinks.map(l => (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  className="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
-                  style={{ color: 'var(--ts-light-gray)' }}
-                  onMouseEnter={e => {
-                    ;(e.currentTarget as HTMLElement).style.color = 'var(--ts-dark-blue)'
-                    ;(e.currentTarget as HTMLElement).style.background = 'var(--ts-very-light-blue)'
-                  }}
-                  onMouseLeave={e => {
-                    ;(e.currentTarget as HTMLElement).style.color = 'var(--ts-light-gray)'
-                    ;(e.currentTarget as HTMLElement).style.background = 'transparent'
-                  }}
-                >
+                <Link key={l.href} href={l.href} className="ts-nav-link">
                   {l.label}
                 </Link>
               ))}
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span
-              className="text-xs px-2.5 py-1 rounded-full font-semibold uppercase tracking-wide"
-              style={{ background: 'var(--ts-very-light-blue)', color: 'var(--ts-blue)' }}
-            >
+            <span className="text-xs px-2.5 py-1 rounded-full font-semibold uppercase tracking-wide"
+              style={{ background: 'var(--ts-very-light-blue)', color: 'var(--ts-blue)' }}>
               Volunteer
             </span>
             <span className="text-sm font-medium" style={{ color: 'var(--ts-dark-blue)' }}>

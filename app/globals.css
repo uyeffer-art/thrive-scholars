@@ -40,3 +40,33 @@ body {
   outline: 2px solid #005191;
   outline-offset: 2px;
 }
+
+/* Nav link hover state */
+.ts-nav-link {
+  color: #606673;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.15s, background 0.15s;
+  text-decoration: none;
+}
+.ts-nav-link:hover {
+  color: #102b4e;
+  background: #d9e9f1;
+}
+
+/* Primary button */
+.ts-btn-primary {
+  background: #005191;
+  color: #ffffff;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.ts-btn-primary:hover { opacity: 0.88; }
+.ts-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
