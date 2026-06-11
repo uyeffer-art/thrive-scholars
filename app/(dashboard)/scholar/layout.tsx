@@ -11,6 +11,7 @@ export default async function ScholarLayout({ children }: { children: React.Reac
   const { data: profile } = await supabase.from('profiles').select('first_name').eq('id', user!.id).returns<{ first_name: string }[]>().single()
 
   const navLinks = [
+    { href: '/scholar/dashboard', label: 'Home' },
     { href: '/scholar/matches', label: 'My Matches' },
     { href: '/scholar/interactions', label: 'Sessions' },
     { href: '/scholar/training', label: 'Training' },

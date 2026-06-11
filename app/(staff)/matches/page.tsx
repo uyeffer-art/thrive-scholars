@@ -5,8 +5,10 @@ import Link from 'next/link'
 const STATUS_TABS = [
   { value: 'approved', label: 'Approved' },
   { value: 'active', label: 'Active' },
+  { value: 'timed_out', label: 'Timed Out' },
   { value: 'completed', label: 'Completed' },
   { value: 'declined', label: 'Declined' },
+  { value: 'cancelled', label: 'Cancelled' },
 ]
 
 export default async function StaffMatchesPage({
@@ -49,6 +51,31 @@ export default async function StaffMatchesPage({
     countMap[m.status] = (countMap[m.status] ?? 0) + 1
   })
 
+  // Timed-out matches needing action
+  const { data: timedOut } = await admin
+    .from('matches')
+    .select(`
+      id, status, timeout_at, created_at,
+      programs (name),
+      scholars (profiles (first_name, last_name)),
+      volunteers (profiles (first_name, last_name))
+    `)
+    .eq('status', 'timed_out')
+    .order('timeout_at', { ascending: true })
+
+  // Approaching timeout: approved matches where timeout_at is within 24h
+  const soon = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+  const { data: approachingTimeout } = await admin
+    .from('matches')
+    .select(`
+      id, timeout_at,
+      scholars (profiles (first_name, last_name)),
+      volunteers (profiles (first_name, last_name))
+    `)
+    .eq('status', 'approved')
+    .lte('timeout_at', soon)
+    .not('timeout_at', 'is', null)
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -57,6 +84,44 @@ export default async function StaffMatchesPage({
           {(matches ?? []).length} shown
         </span>
       </div>
+
+      {/* Timeout alerts */}
+      {(timedOut ?? []).length > 0 && (
+        <div className="mb-4 bg-red-50 border border-red-200 rounded-xl p-4">
+          <p className="text-sm font-medium text-red-800 mb-2">
+            ⏰ {timedOut!.length} match{timedOut!.length > 1 ? 'es' : ''} timed out — no response received
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {(timedOut as any[]).map(m => (
+              <Link key={m.id} href={`/matches/${m.id}`}
+                className="text-xs bg-white border border-red-200 text-red-700 px-3 py-1 rounded-full hover:bg-red-50 transition-colors">
+                {m.scholars?.profiles?.first_name} × {m.volunteers?.profiles?.first_name}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {(approachingTimeout ?? []).length > 0 && (
+        <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <p className="text-sm font-medium text-amber-800 mb-2">
+            ⚠️ {approachingTimeout!.length} match{approachingTimeout!.length > 1 ? 'es' : ''} expiring within 24 hours
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {(approachingTimeout as any[]).map(m => (
+              <Link key={m.id} href={`/matches/${m.id}`}
+                className="text-xs bg-white border border-amber-200 text-amber-700 px-3 py-1 rounded-full hover:bg-amber-50 transition-colors">
+                {m.scholars?.profiles?.first_name} × {m.volunteers?.profiles?.first_name}
+                {m.timeout_at && (
+                  <span className="ml-1 opacity-70">
+                    · expires {new Date(m.timeout_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                  </span>
+                )}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Status tabs */}
       <div className="flex gap-2 mb-6 flex-wrap">
