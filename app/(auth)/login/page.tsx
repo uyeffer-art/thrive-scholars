@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { roleDashboardPath } from '@/lib/utils/roles'
 import type { UserRole } from '@/lib/types/database'
+import ThriveLogo from '@/components/ui/ThriveLogo'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -58,33 +59,9 @@ export default function LoginPage() {
       <div style={{ width: '100%', maxWidth: '420px' }}>
 
         {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          {/* T mark */}
-          <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', marginBottom: '16px' }}>
-            <div style={{ position: 'relative', width: '56px', height: '56px' }}>
-              <div style={{
-                position: 'absolute', top: 0, left: 0, right: 0,
-                height: '10px', borderRadius: '5px', background: '#ffffff'
-              }} />
-              <div style={{
-                position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
-                width: '10px', height: '100%', borderRadius: '5px', background: '#ffffff'
-              }} />
-              <div style={{
-                position: 'absolute', bottom: '2px', right: '4px',
-                width: '14px', height: '14px', borderRadius: '50%', background: '#f7b926'
-              }} />
-            </div>
-          </div>
-          <div>
-            <span style={{ fontSize: '32px', fontWeight: '800', color: '#ffffff', letterSpacing: '-0.5px' }}>
-              Thrive
-            </span>
-            <span style={{ fontSize: '32px', fontWeight: '300', color: '#d9e9f1', letterSpacing: '-0.5px', marginLeft: '8px' }}>
-              Scholars
-            </span>
-          </div>
-          <p style={{ color: '#a8cfe0', fontSize: '14px', marginTop: '6px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px' }}>
+          <ThriveLogo size="lg" variant="light" />
+          <p style={{ color: '#a8cfe0', fontSize: '14px', marginTop: '16px' }}>
             Sign in to your account
           </p>
         </div>
