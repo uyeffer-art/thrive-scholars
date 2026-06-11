@@ -1,44 +1,28 @@
 export default function ThriveLogo({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
-  const heights: Record<string, number> = { sm: 28, md: 34, lg: 44 }
-  const h = heights[size]
+  const scales: Record<string, string> = { sm: 'scale-75', md: 'scale-100', lg: 'scale-125' }
 
   return (
-    <svg
-      height={h}
-      viewBox="0 0 180 40"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-label="Thrive Scholars"
-    >
-      {/* T mark — bold upward arrow suggesting growth */}
-      <rect x="0" y="8" width="24" height="5" rx="2.5" fill="#005191" />
-      <rect x="9.5" y="8" width="5" height="28" rx="2.5" fill="#005191" />
-      {/* Yellow accent dot */}
-      <circle cx="19" cy="36" r="4" fill="#f7b926" />
-
+    <span className={`inline-flex items-center gap-2 origin-left ${scales[size]}`}>
+      {/* T-mark */}
+      <span className="relative flex-shrink-0 w-7 h-7">
+        <span
+          className="absolute top-0 left-0 w-full h-1.5 rounded-full"
+          style={{ background: '#005191' }}
+        />
+        <span
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-full rounded-full"
+          style={{ background: '#005191' }}
+        />
+        <span
+          className="absolute bottom-0 right-0.5 w-2 h-2 rounded-full"
+          style={{ background: '#f7b926' }}
+        />
+      </span>
       {/* Wordmark */}
-      <text
-        x="34"
-        y="27"
-        fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-        fontSize="18"
-        fontWeight="700"
-        fill="#005191"
-        letterSpacing="-0.3"
-      >
-        Thrive
-      </text>
-      <text
-        x="96"
-        y="27"
-        fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-        fontSize="18"
-        fontWeight="400"
-        fill="#102b4e"
-        letterSpacing="-0.2"
-      >
-        Scholars
-      </text>
-    </svg>
+      <span className="leading-none">
+        <span className="font-bold text-lg tracking-tight" style={{ color: '#005191' }}>Thrive</span>
+        <span className="font-normal text-lg tracking-tight ml-1" style={{ color: '#102b4e' }}>Scholars</span>
+      </span>
+    </span>
   )
 }
