@@ -2,6 +2,7 @@ import { requireStaff } from '@/lib/utils/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 import Link from 'next/link'
 import MarkInteractionForm from '@/components/interactions/MarkInteractionForm'
+import SendConfirmationButton from '@/components/interactions/SendConfirmationButton'
 
 const STATUS_STYLES: Record<string, string> = {
   scheduled: 'bg-blue-50 text-blue-700',
@@ -20,9 +21,10 @@ const TYPE_LABELS: Record<string, string> = {
 export default async function StaffInteractionsPage({
   searchParams,
 }: {
-  searchParams: { status?: string }
+  searchParams: Promise<{ status?: string }>
 }) {
   await requireStaff()
+  const { status: statusFilter } = await searchParams
   const admin = createAdminClient()
 
   let query = admin
@@ -36,9 +38,10 @@ export default async function StaffInteractionsPage({
     .order('scheduled_at', { ascending: false })
     .limit(100)
 
-  if (searchParams.status) query = query.eq('status', searchParams.status)
+  if (statusFilter) query = query.eq('status', statusFilter)
 
   const { data: interactions } = await query
+  const nowIso = new Date().toISOString()
 
   const counts = {
     scheduled: (interactions ?? []).filter((i: any) => i.status === 'scheduled').length,
@@ -65,7 +68,7 @@ export default async function StaffInteractionsPage({
         ].map(f => (
           <a key={f.value} href={f.value ? `/interactions?status=${f.value}` : '/interactions'}
             className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${
-              (searchParams.status ?? '') === f.value
+              (statusFilter ?? '') === f.value
                 ? 'bg-gray-900 text-white border-gray-900'
                 : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
             }`}>
@@ -120,9 +123,14 @@ export default async function StaffInteractionsPage({
                       : '—'}
                   </td>
                   <td className="px-4 py-3">
-                    {i.status === 'scheduled' && (
-                      <MarkInteractionForm interactionId={i.id} />
-                    )}
+                    <div className="flex flex-col gap-1">
+                      {i.status === 'scheduled' && (
+                        <MarkInteractionForm interactionId={i.id} />
+                      )}
+                      {i.status === 'scheduled' && i.scheduled_at < nowIso && (
+                        <SendConfirmationButton interactionId={i.id} />
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

@@ -36,14 +36,34 @@ export default async function VolunteerMatchesPage() {
     .order('scheduled_at', { ascending: false })
     .limit(5)
 
+  const now = new Date()
   const upcomingSessions = (interactions ?? []).filter((i: any) =>
-    i.status === 'scheduled' && new Date(i.scheduled_at) > new Date()
+    i.status === 'scheduled' && new Date(i.scheduled_at) > now
+  )
+  const unconfirmedSessions = (interactions ?? []).filter((i: any) =>
+    i.status === 'scheduled' && new Date(i.scheduled_at) <= now
   )
 
   const vol = volunteer as any
 
   return (
     <div className="space-y-8">
+      {/* Unconfirmed sessions banner */}
+      {unconfirmedSessions.length > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold text-amber-900">
+              📋 {unconfirmedSessions.length} session{unconfirmedSessions.length > 1 ? 's' : ''} need{unconfirmedSessions.length === 1 ? 's' : ''} confirmation
+            </p>
+            <p className="text-xs text-amber-700 mt-0.5">Please confirm whether your recent sessions were held or missed.</p>
+          </div>
+          <a href="/volunteer/interactions"
+            className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap ml-4">
+            Confirm now →
+          </a>
+        </div>
+      )}
+
       {/* Upcoming sessions */}
       {upcomingSessions.length > 0 && (
         <div className="bg-green-50 border border-green-200 rounded-xl p-5">

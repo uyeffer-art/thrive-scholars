@@ -24,14 +24,16 @@ export default async function ScholarDashboardPage() {
     .eq('scholar_id', (scholar as any)?.id ?? '')
     .in('status', ['approved', 'active'])
 
-  const { data: upcomingSessions } = await admin
+  const { data: allScheduledSessions } = await admin
     .from('interactions')
     .select('id, scheduled_at, duration_minutes, program_type, volunteers(profiles(first_name, last_name))')
     .eq('scholar_id', (scholar as any)?.id ?? '')
     .eq('status', 'scheduled')
-    .gte('scheduled_at', new Date().toISOString())
     .order('scheduled_at')
-    .limit(3)
+
+  const now = new Date().toISOString()
+  const upcomingSessions = (allScheduledSessions ?? []).filter((i: any) => i.scheduled_at >= now).slice(0, 3)
+  const unconfirmedSessions = (allScheduledSessions ?? []).filter((i: any) => i.scheduled_at < now)
 
   const { data: trainingModules } = await admin
     .from('training_modules')
@@ -60,6 +62,22 @@ export default async function ScholarDashboardPage() {
         <h1 className="text-2xl font-bold text-gray-900">Welcome back, {p?.first_name} 👋</h1>
         <p className="text-gray-500 mt-1">Here's what's happening with your Thrive journey.</p>
       </div>
+
+      {/* Unconfirmed sessions */}
+      {unconfirmedSessions.length > 0 && (
+        <div className="mb-4 bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold text-amber-900">
+              📋 {unconfirmedSessions.length} session{unconfirmedSessions.length > 1 ? 's' : ''} need{unconfirmedSessions.length === 1 ? 's' : ''} confirmation
+            </p>
+            <p className="text-xs text-amber-700 mt-0.5">Please confirm whether your recent sessions were held or missed.</p>
+          </div>
+          <a href="/scholar/interactions"
+            className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap ml-4">
+            Confirm now →
+          </a>
+        </div>
+      )}
 
       {/* Action needed */}
       {pendingMatches.length > 0 && (
