@@ -117,7 +117,75 @@ Everything else is built, deployed, and working today.
 
 ---
 
-## 5. Talking points / likely questions
+## 5. Security & data privacy
+
+The platform handles scholar PII (including demographic data), so security was
+built in from the data layer up. Lead with this framing: **access is enforced
+at the database, not just hidden in the UI.**
+
+### How the platform protects data
+- **Authentication** — Supabase Auth (industry standard). Passwords are
+  hashed (never stored or seen in plaintext); sessions use signed JWTs;
+  password resets use single-use, time-limited links.
+- **Authorization (Row Level Security)** — every table has Postgres RLS
+  policies. Scholars can read only their own records; volunteers see only
+  their match context (not other scholars' data); staff/admin access is
+  gated by a server-side role check. Even a compromised browser session
+  cannot read another user's data — the database refuses it.
+- **Least-privilege secrets** — the powerful service-role key and all API
+  keys live only in encrypted server-side environment variables, never in
+  the browser. The client uses only the public, RLS-gated key.
+- **Transport & hosting** — HTTPS/TLS everywhere (Vercel). Data lives in
+  managed Postgres (Supabase) — encrypted at rest and in transit, with
+  automated backups.
+- **Automation & webhooks** — inbound webhooks (Make.com, Salesforce
+  writeback) are verified with HMAC-SHA256 signatures; the scheduled job is
+  protected by a secret. Spoofed automation calls are rejected.
+- **Salesforce exchange** — only record IDs are passed back and forth over
+  an authenticated channel; there's no open endpoint dumping PII.
+- **Audit trail** — the automation log records every automated action and
+  its success/failure for review.
+
+### Who can see what
+| Data | Scholar | Volunteer | Staff/Admin |
+|---|---|---|---|
+| Own profile | ✅ | ✅ | ✅ |
+| Other scholars' PII / demographics | ❌ | ❌ | ✅ |
+| Matched partner's basic context | ✅ | ✅ (match only) | ✅ |
+| All matches / interactions / logs | ❌ | ❌ | ✅ |
+
+### Security questions you may get
+- **"Where is our data and is it encrypted?"** Managed Postgres on Supabase
+  (built on AWS) — encrypted at rest and in transit (TLS), with automated
+  backups.
+- **"Who can see a scholar's personal information?"** Only the scholar and
+  authorized staff. Enforced by database-level Row Level Security, not just
+  the interface. Volunteers never see other scholars' data.
+- **"How are passwords handled?"** Hashed by Supabase Auth — we never store
+  or see plaintext. Resets use expiring, single-use links.
+- **"What about the demographic data (race, gender, first-gen)?"** It powers
+  matching and is access-controlled like all PII; any field can be made
+  optional or omitted per your policy.
+- **"Is the Salesforce connection secure?"** Yes — HMAC-authenticated,
+  ID-only exchange; no open data endpoints.
+- **"What if an API key is exposed?"** Keys are environment-scoped, server-
+  side only, and rotatable without code changes.
+- **"Is this FERPA-aware?"** The access model supports FERPA-style data
+  minimization and need-to-know access; we recommend a formal review with
+  your compliance team before broad rollout.
+
+### Honest hardening roadmap (recommended before broad launch)
+Be upfront that these are sensible next steps, not gaps that block a pilot:
+- Enable **multi-factor authentication** for staff/admin accounts (supported).
+- Finish **verified email domain + custom SMTP** (already in progress).
+- Add a **data-retention & deletion policy** and document it.
+- Commission a **third-party security review / penetration test** before
+  scaling to full production.
+- Define **backup-restore drills** and an incident-response contact.
+
+---
+
+## 6. Talking points / likely questions
 
 - **"Is the matching real AI?"** Yes — scholar & volunteer profiles are
   embedded (OpenAI), scored against tunable per-program weights, then surfaced

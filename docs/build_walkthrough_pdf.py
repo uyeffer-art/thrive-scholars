@@ -174,6 +174,87 @@ story.append(bullets([
 ]))
 story.append(Paragraph("Everything else is built, deployed, and working today.", S("emph", parent=body_s, fontName="Helvetica-Bold", textColor=GREEN)))
 
+# ---- Security & data privacy ----
+story.append(Paragraph("Security &amp; data privacy", h1_s))
+story.append(Paragraph(
+    "The platform handles scholar PII (including demographic data), so security was built in from the "
+    "data layer up. Lead with this framing: <b>access is enforced at the database, not just hidden in the UI.</b>", body_s))
+
+story.append(Paragraph("How the platform protects data", h2_s))
+story.append(bullets([
+    "<b>Authentication</b> &mdash; Supabase Auth (industry standard). Passwords are hashed (never stored or seen in plaintext); sessions use signed JWTs; password resets use single-use, time-limited links.",
+    "<b>Authorization (Row Level Security)</b> &mdash; every table has Postgres RLS policies. Scholars read only their own records; volunteers see only their match context; staff/admin access is gated by a server-side role check. Even a compromised browser session cannot read another user's data &mdash; the database refuses it.",
+    "<b>Least-privilege secrets</b> &mdash; the service-role key and all API keys live only in encrypted server-side environment variables, never in the browser. The client uses only the public, RLS-gated key.",
+    "<b>Transport &amp; hosting</b> &mdash; HTTPS/TLS everywhere (Vercel). Data lives in managed Postgres (Supabase) &mdash; encrypted at rest and in transit, with automated backups.",
+    "<b>Automation &amp; webhooks</b> &mdash; inbound webhooks (Make.com, Salesforce writeback) are verified with HMAC-SHA256 signatures; the scheduled job is protected by a secret. Spoofed calls are rejected.",
+    "<b>Salesforce exchange</b> &mdash; only record IDs pass over an authenticated channel; no open endpoint dumps PII.",
+    "<b>Audit trail</b> &mdash; the automation log records every automated action and its success/failure.",
+]))
+
+story.append(Paragraph("Who can see what", h2_s))
+acc_rows = [
+    ["Data", "Scholar", "Volunteer", "Staff/Admin"],
+    ["Own profile", "Yes", "Yes", "Yes"],
+    ["Other scholars' PII / demographics", "No", "No", "Yes"],
+    ["Matched partner's basic context", "Yes", "Match only", "Yes"],
+    ["All matches / interactions / logs", "No", "No", "Yes"],
+]
+acc_data = []
+for i, r in enumerate(acc_rows):
+    if i == 0:
+        acc_data.append([Paragraph(c, cellh_s) for c in r])
+    else:
+        cells = [Paragraph(r[0], cell_s)]
+        for v in r[1:]:
+            if v == "No":
+                cells.append(Paragraph('<font color="#dc3545">&#10007;</font>', S("no", parent=cell_s, alignment=1)))
+            else:
+                cells.append(Paragraph(f'<font color="#18b853">&#10004;</font> {v if v!="Yes" else ""}'.strip(), S("yes", parent=cell_s, alignment=1)))
+        acc_data.append(cells)
+acc = Table(acc_data, colWidths=[2.7*inch, 0.95*inch, 1.1*inch, 0.95*inch], repeatRows=1)
+acc.setStyle(TableStyle([
+    ("BACKGROUND", (0,0), (-1,0), BLUE),
+    ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.white, LIGHT]),
+    ("GRID", (0,0), (-1,-1), 0.5, colors.HexColor("#dde8f0")),
+    ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
+    ("ALIGN", (1,0), (-1,-1), "CENTER"),
+    ("TOPPADDING", (0,0), (-1,-1), 5),
+    ("BOTTOMPADDING", (0,0), (-1,-1), 5),
+]))
+story.append(acc)
+story.append(Spacer(1, 8))
+
+story.append(Paragraph("Security questions you may get", h2_s))
+sec_qa = [
+    ("Where is our data and is it encrypted?",
+     "Managed Postgres on Supabase (built on AWS) &mdash; encrypted at rest and in transit (TLS), with automated backups."),
+    ("Who can see a scholar's personal information?",
+     "Only the scholar and authorized staff &mdash; enforced by database-level Row Level Security, not just the interface. Volunteers never see other scholars' data."),
+    ("How are passwords handled?",
+     "Hashed by Supabase Auth; we never store or see plaintext. Resets use expiring, single-use links."),
+    ("What about the demographic data (race, gender, first-gen)?",
+     "It powers matching and is access-controlled like all PII; any field can be made optional or omitted per your policy."),
+    ("Is the Salesforce connection secure?",
+     "Yes &mdash; HMAC-authenticated, ID-only exchange; no open data endpoints."),
+    ("What if an API key is exposed?",
+     "Keys are environment-scoped, server-side only, and rotatable without code changes."),
+    ("Is this FERPA-aware?",
+     "The access model supports FERPA-style data minimization and need-to-know access; we recommend a formal review with your compliance team before broad rollout."),
+]
+for q, a in sec_qa:
+    story.append(Paragraph("Q: " + q, S("sq", parent=body_s, fontName="Helvetica-Bold", textColor=BLUE, spaceAfter=2)))
+    story.append(Paragraph("A: " + a, S("sa", parent=body_s, spaceAfter=8)))
+
+story.append(Paragraph("Honest hardening roadmap (before broad launch)", h2_s))
+story.append(Paragraph("Frame these as sensible next steps, not gaps that block a pilot:", body_s))
+story.append(bullets([
+    "Enable <b>multi-factor authentication</b> for staff/admin accounts (supported).",
+    "Finish <b>verified email domain + custom SMTP</b> (already in progress).",
+    "Add and document a <b>data-retention &amp; deletion policy</b>.",
+    "Commission a <b>third-party security review / penetration test</b> before scaling.",
+    "Define <b>backup-restore drills</b> and an incident-response contact.",
+]))
+
 # ---- Talking points ----
 story.append(Paragraph("Likely questions", h1_s))
 qa = [
