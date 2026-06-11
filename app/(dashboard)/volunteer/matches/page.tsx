@@ -1,6 +1,9 @@
 import { requireRole } from '@/lib/utils/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 import AcceptDeclineButtons from '@/components/matches/AcceptDeclineButtons'
+import EmptyState from '@/components/ui/EmptyState'
+import GettingStarted, { type Step } from '@/components/ui/GettingStarted'
+import HowItWorks from '@/components/ui/HowItWorks'
 
 export default async function VolunteerMatchesPage() {
   const { user } = await requireRole('volunteer')
@@ -8,7 +11,7 @@ export default async function VolunteerMatchesPage() {
 
   const { data: volunteer } = await admin
     .from('volunteers')
-    .select('id, cal_booking_url')
+    .select('id, cal_booking_url, employer, job_title, available_program_types')
     .eq('profile_id', user.id)
     .single()
 
@@ -44,6 +47,33 @@ export default async function VolunteerMatchesPage() {
     i.status === 'scheduled' && new Date(i.scheduled_at) <= now
   )
 
+  // Training progress (required modules for volunteers)
+  const { data: requiredModules } = await admin
+    .from('training_modules')
+    .select('id')
+    .eq('audience', 'volunteer')
+    .eq('is_active', true)
+    .eq('is_required', true)
+  const { data: volCompletions } = await admin
+    .from('training_completions')
+    .select('module_id')
+    .eq('profile_id', user.id)
+    .eq('status', 'completed')
+
+  const vol0 = volunteer as any
+  const reqCount = requiredModules?.length ?? 0
+  const compCount = volCompletions?.length ?? 0
+  const heldOrScheduled = (interactions ?? []).length > 0
+  const activeOrDone = (matches ?? []).filter((m: any) => ['active', 'completed'].includes(m.status))
+
+  const steps: Step[] = [
+    { label: 'Complete your profile', description: 'Add your role, employer, and the programs you can support.', done: Boolean(vol0?.employer && vol0?.job_title && (vol0?.available_program_types?.length ?? 0) > 0), href: '/volunteer/profile', cta: 'Edit profile' },
+    { label: 'Add your booking link', description: 'Share your Cal.com link so scholars can schedule with you.', done: Boolean(vol0?.cal_booking_url), href: '/volunteer/profile', cta: 'Add link' },
+    { label: 'Finish required training', description: 'Short modules to prepare you to mentor effectively.', done: compCount >= reqCount, href: '/volunteer/training', cta: 'Start training' },
+    { label: 'Accept your match', description: 'Review your scholar and accept to begin mentoring.', done: activeOrDone.length > 0, href: '/volunteer/matches', cta: 'Review match' },
+    { label: 'Hold your first session', description: 'Meet your scholar and mark the session held afterward.', done: heldOrScheduled, href: '/volunteer/interactions', cta: 'View sessions' },
+  ]
+
   const vol = volunteer as any
 
   return (
@@ -63,6 +93,9 @@ export default async function VolunteerMatchesPage() {
           </a>
         </div>
       )}
+
+      {/* Getting started checklist */}
+      <GettingStarted title="Getting started as a mentor" steps={steps} />
 
       {/* Upcoming sessions */}
       {upcomingSessions.length > 0 && (
@@ -112,10 +145,14 @@ export default async function VolunteerMatchesPage() {
         <h1 className="text-2xl font-bold text-gray-900 mb-6">My Matches</h1>
 
         {(!matches || matches.length === 0) ? (
-          <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-            <p className="text-gray-500">No active matches yet.</p>
-            <p className="text-sm text-gray-400 mt-1">You'll receive an email when you're matched with a scholar.</p>
-          </div>
+          <EmptyState
+            icon="🌟"
+            title="Thank you for volunteering!"
+            message="We're finding a scholar whose goals align with your experience. You'll get an email as soon as you're matched — then you can accept and start making an impact."
+            hint="Make sure your profile and booking link are set up so your scholar can reach you easily."
+            ctaLabel="Review my profile"
+            ctaHref="/volunteer/profile"
+          />
         ) : (
           <div className="space-y-4">
             {(matches as any[]).map(m => {
@@ -193,6 +230,17 @@ export default async function VolunteerMatchesPage() {
           </div>
         )}
       </div>
+
+      {/* How mentoring works */}
+      <HowItWorks
+        title="How mentoring at Thrive works"
+        steps={[
+          { icon: '🤝', title: 'Get matched', text: 'We pair you with a scholar whose goals fit your experience.' },
+          { icon: '✅', title: 'Accept', text: 'Review your scholar and accept to begin the relationship.' },
+          { icon: '📅', title: 'Meet', text: 'Scholars book time via your link; you connect over video.' },
+          { icon: '🌱', title: 'Make an impact', text: 'Share guidance, mark sessions held, and watch them grow.' },
+        ]}
+      />
     </div>
   )
 }

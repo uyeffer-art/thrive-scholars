@@ -1,6 +1,7 @@
 import { requireRole } from '@/lib/utils/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 import AcceptDeclineButtons from '@/components/matches/AcceptDeclineButtons'
+import EmptyState from '@/components/ui/EmptyState'
 
 export default async function ScholarMatchesPage() {
   const { user } = await requireRole('scholar')
@@ -79,10 +80,14 @@ export default async function ScholarMatchesPage() {
         <h1 className="text-2xl font-bold text-gray-900 mb-6">My Matches</h1>
 
         {(!matches || matches.length === 0) ? (
-          <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-            <p className="text-gray-500">No matches yet.</p>
-            <p className="text-sm text-gray-400 mt-1">Your program manager will notify you when a match is ready.</p>
-          </div>
+          <EmptyState
+            icon="🤝"
+            title="Your mentor match is on the way"
+            message="Our team is finding a mentor whose background and career path fit your goals. You'll get an email the moment your match is ready to review."
+            hint="While you wait, complete your profile and any required training so you're ready to hit the ground running."
+            ctaLabel="Complete required training"
+            ctaHref="/scholar/training"
+          />
         ) : (
           <div className="space-y-4">
             {(matches as any[]).map(m => {

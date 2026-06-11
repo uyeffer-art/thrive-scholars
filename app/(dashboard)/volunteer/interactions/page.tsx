@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import FeedbackForm from '@/components/interactions/FeedbackForm'
 import MarkInteractionForm from '@/components/interactions/MarkInteractionForm'
 import PrepCard from '@/components/interactions/PrepCard'
+import EmptyState from '@/components/ui/EmptyState'
 
 const STATUS_STYLES: Record<string, string> = {
   scheduled: 'bg-blue-50 text-blue-700',
@@ -69,9 +70,14 @@ export default async function VolunteerInteractionsPage() {
       )}
 
       {(!interactions || interactions.length === 0) ? (
-        <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-          <p className="text-gray-500">No sessions yet.</p>
-        </div>
+        <EmptyState
+          icon="📅"
+          title="No sessions yet"
+          message="Once your scholar books time with you, your sessions will appear here with a join link and prep tips. After each meeting, you'll mark it held and leave a quick note."
+          hint="Make sure your booking link is set so your scholar can schedule easily."
+          ctaLabel="Check my profile"
+          ctaHref="/volunteer/profile"
+        />
       ) : (
         <div className="space-y-3">
           {(interactions as any[]).map(i => {

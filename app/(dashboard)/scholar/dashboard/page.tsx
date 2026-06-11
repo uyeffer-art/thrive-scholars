@@ -1,6 +1,8 @@
 import { requireRole } from '@/lib/utils/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 import Link from 'next/link'
+import GettingStarted, { type Step } from '@/components/ui/GettingStarted'
+import HowItWorks from '@/components/ui/HowItWorks'
 
 export default async function ScholarDashboardPage() {
   const { user } = await requireRole('scholar')
@@ -52,9 +54,30 @@ export default async function ScholarDashboardPage() {
   const completedCount = completions?.length ?? 0
   const trainingDone = requiredCount > 0 && completedCount >= requiredCount
 
+  // Has the scholar booked any session at all (scheduled or held)?
+  const { data: anyInteraction } = await admin
+    .from('interactions')
+    .select('id')
+    .eq('scholar_id', (scholar as any)?.id ?? '')
+    .limit(1)
+
+  const sc = scholar as any
   const p = profile as any
   const activeMatches = (matches ?? []).filter((m: any) => m.status === 'active')
   const pendingMatches = (matches ?? []).filter((m: any) => m.status === 'approved')
+
+  // Getting-started journey
+  const profileComplete = Boolean(sc?.college && (sc?.career_interests?.length ?? 0) > 0)
+  const trainingStepDone = completedCount >= requiredCount  // true when nothing required yet
+  const matchStepDone = activeMatches.length > 0
+  const sessionStepDone = (anyInteraction?.length ?? 0) > 0
+
+  const steps: Step[] = [
+    { label: 'Complete your profile', description: 'Add your school and career interests so we can match you well.', done: profileComplete, href: '/scholar/profile', cta: 'Edit profile' },
+    { label: 'Finish required training', description: 'Quick modules that prepare you to get the most from mentorship.', done: trainingStepDone, href: '/scholar/training', cta: 'Start training' },
+    { label: 'Accept your match', description: 'Review your mentor and accept to begin the relationship.', done: matchStepDone, href: '/scholar/matches', cta: 'View matches' },
+    { label: 'Book your first session', description: 'Use your mentor’s booking link to schedule your first meeting.', done: sessionStepDone, href: '/scholar/matches', cta: 'Book now' },
+  ]
 
   return (
     <div>
@@ -94,6 +117,11 @@ export default async function ScholarDashboardPage() {
           </Link>
         </div>
       )}
+
+      {/* Getting started checklist */}
+      <div className="mb-8">
+        <GettingStarted title="Getting started" steps={steps} />
+      </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-8">
@@ -169,6 +197,19 @@ export default async function ScholarDashboardPage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* How mentorship works */}
+      <div className="mt-8">
+        <HowItWorks
+          title="How your Thrive mentorship works"
+          steps={[
+            { icon: '🤝', title: 'Get matched', text: 'We pair you with a mentor based on your goals and interests.' },
+            { icon: '📅', title: 'Meet regularly', text: 'Book sessions using your mentor’s link and connect over video.' },
+            { icon: '💬', title: 'Share feedback', text: 'After each session, mark it held and rate how it went.' },
+            { icon: '🚀', title: 'Grow', text: 'Build skills, confidence, and a network for your future.' },
+          ]}
+        />
       </div>
     </div>
   )

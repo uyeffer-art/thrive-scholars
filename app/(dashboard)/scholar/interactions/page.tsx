@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import FeedbackForm from '@/components/interactions/FeedbackForm'
 import MarkInteractionForm from '@/components/interactions/MarkInteractionForm'
 import PrepCard from '@/components/interactions/PrepCard'
+import EmptyState from '@/components/ui/EmptyState'
 
 const STATUS_STYLES: Record<string, string> = {
   scheduled: 'bg-blue-50 text-blue-700',
@@ -70,9 +71,14 @@ export default async function ScholarInteractionsPage() {
       )}
 
       {(!interactions || interactions.length === 0) ? (
-        <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-          <p className="text-gray-500">No sessions yet.</p>
-        </div>
+        <EmptyState
+          icon="📅"
+          title="No sessions scheduled yet"
+          message="Once you've accepted a match, use your mentor's booking link to schedule your first session. It'll show up here with a join link and prep tips."
+          hint="Head to My Matches to book a time that works for you."
+          ctaLabel="Go to My Matches"
+          ctaHref="/scholar/matches"
+        />
       ) : (
         <div className="space-y-3">
           {(interactions as any[]).map(i => {

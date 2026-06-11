@@ -1,6 +1,7 @@
 import { requireRole } from '@/lib/utils/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 import TrainingModuleCard from '@/components/training/TrainingModuleCard'
+import EmptyState from '@/components/ui/EmptyState'
 
 export default async function ScholarTrainingPage() {
   const { user } = await requireRole('scholar')
@@ -43,9 +44,12 @@ export default async function ScholarTrainingPage() {
       </div>
 
       {(!modules || modules.length === 0) ? (
-        <div className="bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-500">
-          No training modules available yet.
-        </div>
+        <EmptyState
+          icon="📚"
+          title="No training modules yet"
+          message="Your program team hasn't published any training for scholars yet. When they do, your prep modules will appear here."
+          hint="Training is short and helps you get the most out of every mentor session — check back soon!"
+        />
       ) : (
         <div className="space-y-8">
           {required.length > 0 && (
