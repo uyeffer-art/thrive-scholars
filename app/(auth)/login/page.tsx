@@ -6,7 +6,6 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { roleDashboardPath } from '@/lib/utils/roles'
 import type { UserRole } from '@/lib/types/database'
-import ThriveLogo from '@/components/ui/ThriveLogo'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -48,99 +47,130 @@ export default function LoginPage() {
   }
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center px-4"
-      style={{ background: 'var(--background)' }}
-    >
-      {/* Decorative top bar */}
-      <div
-        className="fixed top-0 left-0 right-0 h-1"
-        style={{ background: 'linear-gradient(90deg, #005191 0%, #61aac6 60%, #f7b926 100%)' }}
-      />
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #002d52 0%, #005191 60%, #61aac6 100%)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '24px',
+    }}>
+      <div style={{ width: '100%', maxWidth: '420px' }}>
 
-      <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="flex flex-col items-center mb-10">
-          <ThriveLogo size="lg" />
-          <p className="mt-3 text-sm" style={{ color: 'var(--muted)' }}>
+        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          {/* T mark */}
+          <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', marginBottom: '16px' }}>
+            <div style={{ position: 'relative', width: '56px', height: '56px' }}>
+              <div style={{
+                position: 'absolute', top: 0, left: 0, right: 0,
+                height: '10px', borderRadius: '5px', background: '#ffffff'
+              }} />
+              <div style={{
+                position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
+                width: '10px', height: '100%', borderRadius: '5px', background: '#ffffff'
+              }} />
+              <div style={{
+                position: 'absolute', bottom: '2px', right: '4px',
+                width: '14px', height: '14px', borderRadius: '50%', background: '#f7b926'
+              }} />
+            </div>
+          </div>
+          <div>
+            <span style={{ fontSize: '32px', fontWeight: '800', color: '#ffffff', letterSpacing: '-0.5px' }}>
+              Thrive
+            </span>
+            <span style={{ fontSize: '32px', fontWeight: '300', color: '#d9e9f1', letterSpacing: '-0.5px', marginLeft: '8px' }}>
+              Scholars
+            </span>
+          </div>
+          <p style={{ color: '#a8cfe0', fontSize: '14px', marginTop: '6px' }}>
             Sign in to your account
           </p>
         </div>
 
-        <div
-          className="rounded-2xl p-8 space-y-5 border"
-          style={{ background: 'var(--surface)', borderColor: 'var(--border)', boxShadow: '0 4px 24px rgba(0,81,145,0.07)' }}
-        >
+        {/* Card */}
+        <div style={{
+          background: '#ffffff',
+          borderRadius: '20px',
+          padding: '36px',
+          boxShadow: '0 24px 64px rgba(0,0,0,0.25)',
+        }}>
           {error && (
-            <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+            <div style={{
+              background: '#fff5f5', border: '1px solid #fecaca',
+              borderRadius: '10px', padding: '12px 16px',
+              color: '#dc2626', fontSize: '14px', marginBottom: '20px'
+            }}>
               {error}
             </div>
           )}
 
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--foreground)' }}>
-              Email address
-            </label>
-            <input
-              id="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              className="w-full rounded-lg px-3 py-2.5 text-sm transition-colors"
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#102b4e', marginBottom: '6px' }}>
+                Email address
+              </label>
+              <input
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                style={{
+                  width: '100%', padding: '11px 14px',
+                  border: '1.5px solid #dde8f0', borderRadius: '10px',
+                  fontSize: '14px', color: '#102b4e', background: '#f4f8fb',
+                  boxSizing: 'border-box', outline: 'none',
+                }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#102b4e', marginBottom: '6px' }}>
+                Password
+              </label>
+              <input
+                type="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                style={{
+                  width: '100%', padding: '11px 14px',
+                  border: '1.5px solid #dde8f0', borderRadius: '10px',
+                  fontSize: '14px', color: '#102b4e', background: '#f4f8fb',
+                  boxSizing: 'border-box', outline: 'none',
+                }}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
               style={{
-                border: '1.5px solid var(--border)',
-                background: 'var(--background)',
-                color: 'var(--foreground)',
+                width: '100%', padding: '13px',
+                background: loading ? '#61aac6' : '#005191',
+                color: '#ffffff', fontWeight: '700',
+                fontSize: '15px', borderRadius: '10px',
+                border: 'none', cursor: loading ? 'not-allowed' : 'pointer',
+                marginTop: '4px', letterSpacing: '0.2px',
               }}
-            />
-          </div>
+            >
+              {loading ? 'Signing in…' : 'Sign in'}
+            </button>
+          </form>
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--foreground)' }}>
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              className="w-full rounded-lg px-3 py-2.5 text-sm transition-colors"
-              style={{
-                border: '1.5px solid var(--border)',
-                background: 'var(--background)',
-                color: 'var(--foreground)',
-              }}
-            />
-          </div>
-
-          <button
-            type="submit"
-            onClick={handleSubmit}
-            disabled={loading}
-            className="w-full font-semibold py-2.5 rounded-lg text-sm transition-all"
-            style={{
-              background: loading ? '#61aac6' : '#005191',
-              color: '#fff',
-              cursor: loading ? 'not-allowed' : 'pointer',
-            }}
-          >
-            {loading ? 'Signing in…' : 'Sign in'}
-          </button>
-
-          <p className="text-center text-sm" style={{ color: 'var(--muted)' }}>
+          <p style={{ textAlign: 'center', fontSize: '13px', color: '#606673', marginTop: '20px' }}>
             New volunteer?{' '}
-            <Link href="/signup" className="font-medium hover:underline" style={{ color: 'var(--ts-blue)' }}>
+            <Link href="/signup" style={{ color: '#005191', fontWeight: '600', textDecoration: 'none' }}>
               Create an account
             </Link>
           </p>
         </div>
 
-        <p className="text-center text-xs mt-6" style={{ color: 'var(--muted)' }}>
-          © {new Date().getFullYear()} Thrive Scholars. All rights reserved.
+        <p style={{ textAlign: 'center', fontSize: '12px', color: '#a8cfe0', marginTop: '24px' }}>
+          © {new Date().getFullYear()} Thrive Scholars
         </p>
       </div>
     </div>
