@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     session_type:            (i.program_type ?? '').replace(/_/g, ' '),
     meeting_url:             i.meeting_url ?? '',
     cal_booking_url:         i.volunteers?.cal_booking_url ?? '',
-    prep_content:            t.prep_content ? merge(t.prep_content, {}) : '',
+    prep_content:            t.prep_content ? merge(t.prep_content, {}).replace(/\n/g, '<br>') : '',
   }
 
   // Determine recipients
