@@ -123,10 +123,8 @@ export async function POST(req: NextRequest) {
       <body style="margin:0;padding:0;background:#f4f8fb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
         <div style="max-width:600px;margin:32px auto;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #dde8f0;">
           <!-- Header -->
-          <div style="background:#005191;padding:20px 32px;display:flex;align-items:center;gap:12px;">
-            <div style="color:#ffffff;font-size:20px;font-weight:700;letter-spacing:-0.3px;">Thrive</div>
-            <div style="color:#61aac6;font-size:20px;font-weight:400;">Scholars</div>
-            <div style="width:8px;height:8px;background:#f7b926;border-radius:50%;margin-left:2px;"></div>
+          <div style="background:#ffffff;padding:20px 32px;border-bottom:3px solid #005191;">
+            <img src="${process.env.NEXT_PUBLIC_APP_URL}/Thrive-Scholars_Standard-Horizontal-Logo-e1708984636495.png" alt="Thrive Scholars" height="40" style="display:block;height:40px;width:auto;border:0;" />
           </div>
           <!-- Body -->
           <div style="padding:32px;font-size:15px;line-height:1.6;color:#102b4e;">
