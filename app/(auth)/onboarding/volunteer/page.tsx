@@ -55,7 +55,7 @@ export default function VolunteerOnboarding() {
     race_ethnicity: [] as string[],
   })
 
-  function toggleArray(key: 'race_ethnicity' | 'available_program_types' | 'personal_interests', value: string) {
+  function toggleArray(key: 'race_ethnicity' | 'available_program_types', value: string) {
     setForm(f => ({
       ...f,
       [key]: (f[key] as string[]).includes(value)
