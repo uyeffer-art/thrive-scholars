@@ -22,6 +22,17 @@ const CUBES = [
   { x: 80, y: 54, top: TEAL,   left: YELLOW, right: ORANGE }, // bottom-right
 ]
 
+// On dark backgrounds the deep navy/blue faces blend into the background,
+// so brighten the cool tones for the light (knockout) variant.
+const LIGHT_REMAP: Record<string, string> = {
+  [NAVY]: '#5b9bd5',
+  [BLUE]: '#79b4e8',
+  [TEAL]: '#8fd4ec',
+}
+function shade(color: string, variant: Variant) {
+  return variant === 'light' ? (LIGHT_REMAP[color] ?? color) : color
+}
+
 function faces(x: number, y: number) {
   const A  = `${x},${y}`
   const B  = `${x + HX},${y + VT}`
@@ -67,9 +78,9 @@ export default function ThriveLogo({
           const f = faces(c.x, c.y)
           return (
             <g key={i}>
-              <polygon points={f.left} fill={c.left} />
-              <polygon points={f.right} fill={c.right} />
-              <polygon points={f.top} fill={c.top} />
+              <polygon points={f.left} fill={shade(c.left, variant)} />
+              <polygon points={f.right} fill={shade(c.right, variant)} />
+              <polygon points={f.top} fill={shade(c.top, variant)} />
             </g>
           )
         })}
