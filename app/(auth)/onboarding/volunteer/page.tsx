@@ -29,11 +29,6 @@ const RACE_OPTIONS = [
   'Prefer not to say',
 ]
 
-const PERSONAL_INTERESTS = [
-  'Music', 'Sports', 'Art / Design', 'Writing', 'Gaming',
-  'Travel', 'Cooking', 'Fitness', 'Reading', 'Volunteering',
-  'Photography', 'Film / TV', 'Fashion', 'Politics / Activism',
-]
 
 const TOTAL_STEPS = 3
 
@@ -58,7 +53,6 @@ export default function VolunteerOnboarding() {
     first_gen: false,
     gender: '',
     race_ethnicity: [] as string[],
-    personal_interests: [] as string[],
   })
 
   function toggleArray(key: 'race_ethnicity' | 'available_program_types' | 'personal_interests', value: string) {
@@ -86,7 +80,6 @@ export default function VolunteerOnboarding() {
       years_experience: form.years_experience === '' ? null : form.years_experience,
       gender: form.gender || null,
       race_ethnicity: form.race_ethnicity.length > 0 ? form.race_ethnicity : null,
-      personal_interests: form.personal_interests.length > 0 ? form.personal_interests : null,
     } as any)
 
     if (err) {
@@ -205,20 +198,6 @@ export default function VolunteerOnboarding() {
                 <label htmlFor="vol_first_gen" className="text-sm text-gray-700">
                   I was a first-generation college student
                 </label>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Personal interests</label>
-                <div className="flex flex-wrap gap-2">
-                  {PERSONAL_INTERESTS.map(i => (
-                    <button key={i} type="button" onClick={() => toggleArray('personal_interests', i)}
-                      className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${
-                        form.personal_interests.includes(i) ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
-                      }`}>
-                      {i}
-                    </button>
-                  ))}
-                </div>
               </div>
 
               <div className="flex gap-3">
