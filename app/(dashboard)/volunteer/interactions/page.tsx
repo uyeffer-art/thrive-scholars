@@ -28,6 +28,8 @@ export default async function VolunteerInteractionsPage() {
     .eq('volunteer_id', volunteer?.id ?? '')
     .order('scheduled_at', { ascending: false })
 
+  const now = new Date().toISOString()
+
   const admin = createAdminClient()
   const upcomingProgramTypes = [...new Set(
     (interactions ?? [])
@@ -49,7 +51,6 @@ export default async function VolunteerInteractionsPage() {
     if (t.program_type && t.prep_content) prepByType[t.program_type] = t.prep_content
   })
 
-  const now = new Date().toISOString()
   const unconfirmed = (interactions ?? []).filter(
     (i: any) => i.status === 'scheduled' && i.scheduled_at && i.scheduled_at < now
   )

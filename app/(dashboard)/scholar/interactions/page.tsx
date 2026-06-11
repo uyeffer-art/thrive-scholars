@@ -28,6 +28,8 @@ export default async function ScholarInteractionsPage() {
     .eq('scholar_id', scholar?.id ?? '')
     .order('scheduled_at', { ascending: false })
 
+  const now = new Date().toISOString()
+
   // Fetch prep content for upcoming scheduled interactions
   const admin = createAdminClient()
   const upcomingProgramTypes = [...new Set(
@@ -50,7 +52,6 @@ export default async function ScholarInteractionsPage() {
     if (t.program_type && t.prep_content) prepByType[t.program_type] = t.prep_content
   })
 
-  const now = new Date().toISOString()
   const unconfirmed = (interactions ?? []).filter(
     (i: any) => i.status === 'scheduled' && i.scheduled_at && i.scheduled_at < now
   )
