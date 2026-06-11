@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Resend } from 'resend'
+import { resend, FROM_ADDRESS } from '@/lib/email/resend'
 import { createAdminClient } from '@/lib/supabase/admin'
-
-const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(req: NextRequest) {
   const { interactionId } = await req.json()
@@ -44,7 +42,7 @@ export async function POST(req: NextRequest) {
   if (volunteerEmail) {
     emails.push(
       resend.emails.send({
-        from: 'Thrive Scholars <no-reply@thrivescholars.org>',
+        from: FROM_ADDRESS,
         to: volunteerEmail,
         subject: `Did your session with ${scholarName} happen?`,
         html: `
@@ -65,7 +63,7 @@ export async function POST(req: NextRequest) {
   if (scholarEmail) {
     emails.push(
       resend.emails.send({
-        from: 'Thrive Scholars <no-reply@thrivescholars.org>',
+        from: FROM_ADDRESS,
         to: scholarEmail,
         subject: `Did your session with ${volunteerName} happen?`,
         html: `

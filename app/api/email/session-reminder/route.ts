@@ -1,9 +1,7 @@
 // Session reminder email API — v2
 import { NextRequest, NextResponse } from 'next/server'
-import { Resend } from 'resend'
+import { resend, FROM_ADDRESS } from '@/lib/email/resend'
 import { createAdminClient } from '@/lib/supabase/admin'
-
-const resend = new Resend(process.env.RESEND_API_KEY)
 
 // Replaces all {{merge_tags}} in a string with real values
 function merge(template: string, vars: Record<string, string>): string {
@@ -148,7 +146,7 @@ export async function POST(req: NextRequest) {
 
     try {
       await resend.emails.send({
-        from: 'Thrive Scholars <no-reply@thrivescholars.org>',
+        from: FROM_ADDRESS,
         to: recipient.email,
         subject,
         html,
