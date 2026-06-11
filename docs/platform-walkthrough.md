@@ -131,7 +131,9 @@ at the database, not just hidden in the UI.**
   policies. Scholars can read only their own records; volunteers see only
   their match context (not other scholars' data); staff/admin access is
   gated by a server-side role check. Even a compromised browser session
-  cannot read another user's data — the database refuses it.
+  cannot read another user's data — the database refuses it. **Verified by
+  testing:** attempts to read or modify another user's records are rejected
+  at the database.
 - **Least-privilege secrets** — the powerful service-role key and all API
   keys live only in encrypted server-side environment variables, never in
   the browser. The client uses only the public, RLS-gated key.

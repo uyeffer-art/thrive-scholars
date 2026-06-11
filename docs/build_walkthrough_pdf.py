@@ -183,7 +183,7 @@ story.append(Paragraph(
 story.append(Paragraph("How the platform protects data", h2_s))
 story.append(bullets([
     "<b>Authentication</b> &mdash; Supabase Auth (industry standard). Passwords are hashed (never stored or seen in plaintext); sessions use signed JWTs; password resets use single-use, time-limited links.",
-    "<b>Authorization (Row Level Security)</b> &mdash; every table has Postgres RLS policies. Scholars read only their own records; volunteers see only their match context; staff/admin access is gated by a server-side role check. Even a compromised browser session cannot read another user's data &mdash; the database refuses it.",
+    "<b>Authorization (Row Level Security)</b> &mdash; every table has Postgres RLS policies. Scholars read only their own records; volunteers see only their match context; staff/admin access is gated by a server-side role check. Even a compromised browser session cannot read another user's data &mdash; the database refuses it. <b>Verified by testing:</b> attempts to read or modify another user's records are rejected at the database.",
     "<b>Least-privilege secrets</b> &mdash; the service-role key and all API keys live only in encrypted server-side environment variables, never in the browser. The client uses only the public, RLS-gated key.",
     "<b>Transport &amp; hosting</b> &mdash; HTTPS/TLS everywhere (Vercel). Data lives in managed Postgres (Supabase) &mdash; encrypted at rest and in transit, with automated backups.",
     "<b>Automation &amp; webhooks</b> &mdash; inbound webhooks (Make.com, Salesforce writeback) are verified with HMAC-SHA256 signatures; the scheduled job is protected by a secret. Spoofed calls are rejected.",

@@ -102,7 +102,7 @@ story.append(Spacer(1, 10))
 story.append(Paragraph("Security &amp; privacy", h1_s))
 story.append(Paragraph("The platform protects scholar information at the data layer, not just the interface:", body_s))
 story.append(bullets([
-    "<b>Access controls</b> &mdash; every record is protected by database-level Row Level Security. Users only ever see their own data, and a scholar's personal information is never exposed to other users.",
+    "<b>Access controls</b> &mdash; every record is protected by database-level Row Level Security, verified by testing: users cannot read or modify other users' records, and a scholar's personal information is never exposed to other users.",
     "<b>Encryption</b> &mdash; all data is encrypted in transit (TLS) and at rest, on managed, automatically backed-up infrastructure.",
     "<b>Authentication</b> &mdash; passwords are securely hashed (never stored in plaintext), with secure, time-limited password resets.",
     "<b>Integrations</b> &mdash; the Salesforce connection is authenticated and exchanges only record identifiers, never bulk personal data.",
