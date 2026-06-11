@@ -123,10 +123,11 @@ story.append(Paragraph(
 story.append(Paragraph("Live demo script", h1_s))
 story.append(Paragraph(
     "Tip: open three browser windows to stay logged in as Staff, Scholar, and Volunteer at once. "
-    "All demo accounts use password <b>ThriveTest123!</b>", small_s))
+    "Staff login: <b>uyeffer+staff@gmail.com</b> / <b>Thrive2026!</b>. "
+    "Scholar &amp; volunteer demo accounts use <b>ThriveTest123!</b>", small_s))
 
 story.append(Paragraph("Part A &mdash; Staff console", h2_s))
-story.append(Paragraph("Log in as <b>uyeffer@gmail.com</b>.", body_s))
+story.append(Paragraph("Log in as <b>uyeffer+staff@gmail.com</b> (password <b>Thrive2026!</b>).", body_s))
 story.append(bullets([
     "<b>Dashboard</b> &mdash; high-level overview.",
     "<b>Scholars / Volunteers</b> &mdash; rich profiles; volunteer <b>actions panel</b> (corporate partner, star, inactivity nudge).",

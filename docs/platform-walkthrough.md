@@ -53,10 +53,11 @@ Three roles, three tailored experiences:
 
 > Tip: open three browser profiles/incognito windows so you can stay logged
 > in as Staff, Scholar, and Volunteer simultaneously.
-> All demo accounts use password **`ThriveTest123!`**
+> Staff login: **`uyeffer+staff@gmail.com`** / **`Thrive2026!`**
+> Scholar & volunteer demo accounts use **`ThriveTest123!`**
 
 ### Part A — Staff console (the control center)
-Log in as **`uyeffer@gmail.com`** (or `uyeffer+staff@gmail.com`).
+Log in as **`uyeffer+staff@gmail.com`** (password **`Thrive2026!`**).
 
 1. **Dashboard** — high-level overview.
 2. **Scholars / Volunteers** — browse records; open one to show the rich
