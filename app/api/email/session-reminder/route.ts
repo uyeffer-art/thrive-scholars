@@ -1,3 +1,4 @@
+// Session reminder email API — v2
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { createAdminClient } from '@/lib/supabase/admin'

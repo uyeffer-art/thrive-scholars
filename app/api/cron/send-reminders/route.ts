@@ -1,3 +1,4 @@
+// Cron job: send session reminders — v2
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 
