@@ -271,6 +271,32 @@ for q, a in qa:
     story.append(Paragraph("Q: " + q, S("q", parent=body_s, fontName="Helvetica-Bold", textColor=BLUE, spaceAfter=2)))
     story.append(Paragraph("A: " + a, S("a", parent=body_s, spaceAfter=8)))
 
+# ---- Salesforce intake & data flow ----
+story.append(Paragraph("Salesforce intake &amp; data flow (discussion)", h1_s))
+story.append(Paragraph(
+    "Recent update: the app side of the Salesforce connection is now fully built &mdash; both the "
+    "outbound trigger and the inbound scholar-import endpoint. What remains is configuring Make.com "
+    "and confirming their data model. Use this to frame the intake conversation.", body_s))
+
+story.append(Paragraph("Talking points", h2_s))
+story.append(bullets([
+    "<b>Two systems, clear roles</b> &mdash; Salesforce is the system of record (scholars, enrollments, case plans); the platform is the system of engagement (matching, scheduling, sessions, comms). The <b>sf_*</b> ID fields keep them linked.",
+    "<b>Volunteers register on the platform</b> &mdash; they sign up and onboard here (low friction, and we capture exactly what matching needs); Make.com then finds or creates their Salesforce Contact and writes the IDs back.",
+    "<b>Scholars are imported from Salesforce</b> &mdash; they're existing Thrive participants, so we pull them in rather than re-register them. A new, secure, <b>idempotent</b> import endpoint provisions a login + profile and upserts the scholar record (safe to re-run nightly).",
+    "<b>Recommendation: import program-scoped scholars</b>, not the entire scholar base &mdash; keeps the matching pool relevant and the PII footprint minimal (reinforces the security story).",
+    "<b>Both directions are coded and dormant</b> until connected &mdash; turning it on is a Make.com configuration step, not new development.",
+]))
+
+story.append(Paragraph("Questions to cover with Thrive", h2_s))
+story.append(bullets([
+    "Should scholars be imported <b>all</b> or <b>program/cohort-scoped</b>? (We recommend scoped.)",
+    "What <b>triggers</b> a scholar import &mdash; a nightly sync, or when staff flag a scholar for mentorship in Salesforce?",
+    "Are any <b>volunteers recruited in Salesforce first</b> (so we'd also add a volunteer-import path), or always via the platform?",
+    "Which Salesforce <b>objects and fields</b> represent scholar enrollment and the case plan we attach interactions to?",
+    "How should imported scholars <b>get their login</b> &mdash; an invite email, or a 'set your password' link on first contact?",
+    "Who provides the <b>Salesforce API credentials / connected app</b>, and who owns the Make.com scenarios?",
+]))
+
 # Footer note
 story.append(Spacer(1, 8))
 story.append(HRFlowable(width="100%", thickness=1, color=TEAL, spaceAfter=6))

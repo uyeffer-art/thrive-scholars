@@ -199,3 +199,41 @@ Be upfront that these are sensible next steps, not gaps that block a pilot:
   editable (timing, audience, program, merge tags, prep content) without a deploy.
 - **"How do we know sessions actually happened?"** Both parties self-confirm
   held/missed, staff can override, and everything is rated and logged.
+
+---
+
+## 7. Salesforce intake & data flow (discussion)
+
+Recent update: the app side of the Salesforce connection is now fully built —
+both the outbound trigger and the inbound scholar-import endpoint. What remains
+is configuring Make.com and confirming their data model. Use this to frame the
+intake conversation.
+
+### Talking points
+- **Two systems, clear roles** — Salesforce is the system of record (scholars,
+  enrollments, case plans); the platform is the system of engagement (matching,
+  scheduling, sessions, comms). The `sf_*` ID fields keep them linked.
+- **Volunteers register on the platform** — they sign up and onboard here (low
+  friction, and we capture exactly what matching needs); Make.com then finds or
+  creates their Salesforce Contact and writes the IDs back.
+- **Scholars are imported from Salesforce** — they're existing Thrive
+  participants, so we pull them in rather than re-register them. A new, secure,
+  idempotent import endpoint provisions a login + profile and upserts the
+  scholar record (safe to re-run nightly).
+- **Recommendation: import program-scoped scholars**, not the entire scholar
+  base — keeps the matching pool relevant and the PII footprint minimal.
+- **Both directions are coded and dormant** until connected — turning it on is a
+  Make.com configuration step, not new development.
+
+### Questions to cover with Thrive
+- Should scholars be imported **all** or **program/cohort-scoped**? (Recommend scoped.)
+- What **triggers** a scholar import — a nightly sync, or when staff flag a
+  scholar for mentorship in Salesforce?
+- Are any **volunteers recruited in Salesforce first** (so we'd also add a
+  volunteer-import path), or always via the platform?
+- Which Salesforce **objects and fields** represent scholar enrollment and the
+  case plan we attach interactions to?
+- How should imported scholars **get their login** — an invite email, or a
+  "set your password" link on first contact?
+- Who provides the **Salesforce API credentials / connected app**, and who owns
+  the Make.com scenarios?
