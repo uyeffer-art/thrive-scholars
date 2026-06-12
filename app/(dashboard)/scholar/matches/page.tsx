@@ -109,7 +109,6 @@ export default async function ScholarMatchesPage() {
                     <div className="flex-1">
                       <p className="font-semibold text-gray-900 text-lg">
                         {vol?.profiles?.first_name} {vol?.profiles?.last_name}
-                        {vol?.is_star_volunteer && <span className="ml-2 text-sm">⭐</span>}
                       </p>
                       <p className="text-gray-600 mt-0.5">
                         {vol?.job_title} · {vol?.employer}
