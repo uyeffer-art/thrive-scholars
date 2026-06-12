@@ -78,6 +78,28 @@ Example:
 
 ## Make.com scenarios to build
 
+### Scenario 0 — Import scholars (Salesforce → app)
+Scholars are existing Thrive participants, so they're imported, not self-registered.
+
+**Trigger:** scheduled scan (e.g. nightly) of scholars enrolled in / eligible
+for a mentorship program, or fire when staff flags a scholar in Salesforce.
+
+**Step:** **HTTP → POST** `https://thrive-scholars.vercel.app/api/salesforce/import-scholar`
+with HMAC `x-make-signature`. Body (email required):
+```json
+{
+  "email": "scholar@example.com",
+  "first_name": "Jordan", "last_name": "Thompson",
+  "sf_contact_id": "003...", "sf_program_enrollment_id": "a0X...",
+  "cohort_year": 2025, "current_stage": "college-2",
+  "college": "University of Iowa",
+  "career_interests": ["Finance"], "first_gen": true
+}
+```
+The endpoint is **idempotent** (safe to re-run): it finds the scholar by email
+or provisions a login + profile, then upserts the scholar record. Recommended:
+import only **program-scoped** scholars, not the entire scholar base.
+
 ### Scenario 1 — Sync Contacts (scholars & volunteers)
 **Trigger:** Custom webhook receiving the `/api/automation/trigger` payload
 (or a scheduled scan of the Salesforce status dashboard).
